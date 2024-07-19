@@ -5,75 +5,96 @@ o saldo deve ser iniciado em 0, e o id deve ser autoicremental. a interfaçe dev
 realização das operações de saque e deposito do saldo da conta.
 '''
 
-# cria a classe ContaBancaria com detalhes e ações para uma conta bancária
+import tkinter as tk
+from tkinter import messagebox
+
+# Cria a classe ContaBancaria com informações e funções para gerenciar uma conta bancária
 class ContaBancaria:
-    id_counter = 1  # conta que vai gerar IDs automáticos para cada nova conta
+    id_counter = 1  # Conta que vai criar números únicos para cada nova conta
 
-    # função que começa a classe e define os detalhes da conta
     def __init__(self, nome, cpf):
-        self.id = ContaBancaria.id_counter  # dá um ID único para a nova conta
-        ContaBancaria.id_counter += 1  # aumenta o contador para o próximo ID
-        self.nome = nome  # nome da pessoa com a conta
-        self.cpf = cpf  # CPF da pessoa com a conta
-        self.saldo = 0.0  # começa o saldo da conta em 0
+        self.id = ContaBancaria.id_counter  # Dá um número único para a nova conta
+        ContaBancaria.id_counter += 1  # Prepara o próximo número para a próxima conta
+        self.nome = nome  # Nome do dono da conta
+        self.cpf = cpf  # CPF do dono da conta
+        self.saldo = 0.0  # Começa o saldo da conta em 0
 
-    # função para adicionar dinheiro à conta
     def depositar(self, valor):
-        if valor > 0:  # checa se o valor do depósito é positivo
-            self.saldo += valor  # adiciona o valor ao saldo da conta
-            print(f'Depósito de R${valor:.2f} feito com sucesso.')
+        if valor > 0:  # Verifica se o valor do depósito é positivo
+            self.saldo += valor  # Adiciona o valor ao saldo da conta
+            return f'Depósito de R${valor:.2f} feito com sucesso.'
         else:
-            print('O valor do depósito deve ser positivo.')
+            return 'O valor do depósito deve ser positivo.'
 
-    # função para retirar dinheiro da conta
     def sacar(self, valor):
-        if valor > 0:  # checa se o valor do saque é positivo
-            if valor <= self.saldo:  # checa se há saldo suficiente para o saque
-                self.saldo -= valor  # subtrai o valor do saldo da conta
-                print(f'Saque de R${valor:.2f} feito com sucesso.')
+        if valor > 0:  # Verifica se o valor do saque é positivo
+            if valor <= self.saldo:  # Verifica se há dinheiro suficiente para o saque
+                self.saldo -= valor  # Remove o valor do saldo da conta
+                return f'Saque de R${valor:.2f} feito com sucesso.'
             else:
-                print('Saldo insuficiente.')  # avisa que não há saldo suficiente
+                return 'Saldo insuficiente.'  # Informa que não há dinheiro suficiente
         else:
-            print('O valor do saque deve ser positivo.')
+            return 'O valor do saque deve ser positivo.'
 
-    # função para mostrar o saldo da conta
     def consultar_saldo(self):
-        return self.saldo  # retorna o saldo atual da conta
+        return self.saldo  # Retorna o saldo atual da conta
 
-# função para criar uma nova conta
+# Função para criar uma nova conta
 def criar_conta():
-    nome = input('Digite o nome do titular: ')  # pede o nome do titular da conta
-    cpf = input('Digite o CPF do titular: ')  # pede o CPF do titular da conta
-    conta = ContaBancaria(nome, cpf)  # cria uma nova conta
-    print(f'Conta criada com sucesso! ID: {conta.id}')  # mostra o ID da nova conta
-    return conta  # retorna a conta criada
+    nome = entry_nome.get()  # Pega o nome do dono da conta
+    cpf = entry_cpf.get()  # Pega o CPF do dono da conta
+    global conta
+    conta = ContaBancaria(nome, cpf)  # Cria uma nova conta
+    messagebox.showinfo("Conta Criada", f'Conta criada com sucesso! ID: {conta.id}')  # Mostra o número da nova conta
 
-# função que exibe o menu e lida com as escolhas do usuário
-def menu():
-    conta = criar_conta()  # cria uma nova conta
-    while True:  # loop que continua até o usuário escolher sair
-        print('\nMenu:')
-        print('1. Depositar')  # opção para fazer um depósito
-        print('2. Sacar')  # opção para fazer um saque
-        print('3. Consultar Saldo')  # opção para ver o saldo
-        print('4. Sair')  # opção para sair do programa
+# Função para fazer depósito
+def depositar():
+    try:
+        valor = float(entry_valor.get())  # Pega o valor do depósito
+        mensagem = conta.depositar(valor)  # Faz o depósito
+        messagebox.showinfo("Resultado", mensagem)  # Mostra o resultado do depósito
+    except ValueError:
+        messagebox.showerror("Erro", "Digite um valor válido.")  # Mostra erro se o valor não for válido
 
-        opcao = input('Escolha uma opção: ')  # pede para o usuário escolher uma opção
+# Função para fazer saque
+def sacar():
+    try:
+        valor = float(entry_valor.get())  # Pega o valor do saque
+        mensagem = conta.sacar(valor)  # Faz o saque
+        messagebox.showinfo("Resultado", mensagem)  # Mostra o resultado do saque
+    except ValueError:
+        messagebox.showerror("Erro", "Digite um valor válido.")  # Mostra erro se o valor não for válido
 
-        if opcao == '1':  # se o usuário escolher a opção de depósito
-            valor = float(input('Digite o valor do depósito: '))  # pede o valor do depósito
-            conta.depositar(valor)  # faz o depósito
-        elif opcao == '2':  # se o usuário escolher a opção de saque
-            valor = float(input('Digite o valor do saque: '))  # pede o valor do saque
-            conta.sacar(valor)  # faz o saque
-        elif opcao == '3':  # se o usuário escolher a opção de saldo
-            print(f'Saldo atual: R${conta.consultar_saldo():.2f}')  # mostra o saldo atual
-        elif opcao == '4':  # se o usuário escolher sair
-            print('Saindo...')  # informa que está saindo
-            break  # sai do loop e termina o programa
-        else:
-            print('Opção inválida. Tente novamente.')  # informa que a opção escolhida não é válida
+# Função para consultar o saldo
+def consultar_saldo():
+    saldo = conta.consultar_saldo()  # Pega o saldo da conta
+    messagebox.showinfo("Saldo", f'Saldo atual: R${saldo:.2f}')  # Mostra o saldo atual
 
-# começa o programa chamando a função menu quando o script é executado diretamente
-if __name__ == "__main__":
-    menu()
+# Cria a janela principal
+root = tk.Tk()
+root.title("Sistema Bancário")
+
+# Adiciona os campos e botões à janela
+tk.Label(root, text="Nome:").pack()
+entry_nome = tk.Entry(root)
+entry_nome.pack()
+
+tk.Label(root, text="CPF:").pack()
+entry_cpf = tk.Entry(root)
+entry_cpf.pack()
+
+tk.Button(root, text="Criar Conta", command=criar_conta).pack()
+
+tk.Label(root, text="Valor:").pack()
+entry_valor = tk.Entry(root)
+entry_valor.pack()
+
+tk.Button(root, text="Depositar", command=depositar).pack()
+tk.Button(root, text="Sacar", command=sacar).pack()
+tk.Button(root, text="Consultar Saldo", command=consultar_saldo).pack()
+
+# Define a variável conta como vazia até que uma conta seja criada
+conta = None
+
+# Inicia a interface gráfica
+root.mainloop()
